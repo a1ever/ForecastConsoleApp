@@ -1,0 +1,1 @@
+add_library(ConsoleInterface  Forecast/Forecast.h Forecast/City.h ConsoleInterface.cpp)
