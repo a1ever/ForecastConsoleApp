@@ -10,6 +10,7 @@
 #include <fstream>
 
 const std::string kConfigArgName = "--config=";
+std::mutex mt;
 
 struct Config {
   std::vector<std::string> cities;
@@ -44,10 +45,11 @@ Config ParseArgs(int argc, char** argv) {
 void UpdateWeather(console::ConsoleInterface& console_interface,
                    const Config& config) {
   while (console::ConsoleInterface::active) {
-    std::this_thread::sleep_for(std::chrono::seconds(config.frequency));
+    std::this_thread::sleep_for(std::chrono::milliseconds (config.frequency));
     auto x = forecast::city::CreateCitiesFromWeb(config.cities, config.api_key);
     if (!x.empty()) {
-      console_interface.SetCities(forecast::city::CreateCitiesFromWeb(config.cities, config.api_key));
+        std::unique_lock lc(mt);
+        console_interface.SetCities(forecast::city::CreateCitiesFromWeb(config.cities, config.api_key));
     }
   }
 }//
